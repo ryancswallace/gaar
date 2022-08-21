@@ -80,35 +80,35 @@ func printEnvVars(assumeResponse AssumeResponse) error {
 func Run(dispConf DispConf) (int, error) {
 	rawAssumeResponse, err := readAssumeResponse()
 	if err != nil {
-		msg := sanitizeMessage("Error reading standard input: " + err.Error())
+		msg := sanitizeMessage("gaar: Error reading standard input: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)
 		return ExitRead, err
 	}
 
 	assumeResponse, err := parseAssumeResponse(rawAssumeResponse)
 	if err != nil {
-		msg := sanitizeMessage("Error parsing response: " + err.Error())
+		msg := sanitizeMessage("gaar: Error parsing response: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)
 		return ExitParse, err
 	}
 
 	err = validateAssumeResponse(assumeResponse)
 	if err != nil {
-		msg := sanitizeMessage("Error validating response: " + err.Error())
+		msg := sanitizeMessage("gaar: Error validating response: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)
 		return ExitValidate, err
 	}
 
 	err = printEnvVars(assumeResponse)
 	if err != nil {
-		msg := sanitizeMessage("Error printing environment variables: " + err.Error())
+		msg := sanitizeMessage("gaar: Error printing environment variables: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)
 		return ExitPrint, err
 	}
 
 	err = dispResponse(assumeResponse, dispConf)
 	if err != nil {
-		msg := sanitizeMessage("Error displaying response: " + err.Error())
+		msg := sanitizeMessage("gaar: Error displaying response: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)
 		return ExitDisplay, err
 	}
