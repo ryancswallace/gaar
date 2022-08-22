@@ -15,19 +15,23 @@ type DispConf struct {
 
 func SetUsage() {
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "Format AWS IAM role credentials.")
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "gaar reads a JSON response from `aws sts assume-role` from stdin and prints environment variable")
-		fmt.Fprintln(os.Stderr, "settings for the credentials received to stdout, formatted for the current shell.")
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "Usage:")
-		fmt.Fprintln(os.Stderr, "\tgaar [-disp] [-disp-user] [-disp-credentials] [-disp-response]")
-		fmt.Fprintln(os.Stderr)
+		usage := `Format AWS IAM role credentials.
+
+gaar reads a JSON response from "aws sts assume-role" from stdin and prints environment variable
+settings for the credentials received to stdout, formatted for the current shell.
+
+Usage:
+    gaar [-disp] [-disp-user] [-disp-credentials] [-disp-response]
+
+		`
+
+		example := `
+To retrieve and export environment variables in one line, use
+$ $(aws sts assume-role --role-arn foo --role-session-name bar | gaar)
+`
+		fmt.Fprintln(os.Stderr, usage)
 		flag.PrintDefaults()
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "To retrieve and export environment variables in one line, use")
-		fmt.Fprintln(os.Stderr, "$ $(aws sts assume-role --role-arn foo --role-session-name bar | gaar)")
-		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, example)
 	}
 }
 
