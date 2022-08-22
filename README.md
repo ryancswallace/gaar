@@ -4,10 +4,9 @@
 ## todo
 x folder structure
 x Makefile
-- packages
+- CI (tests, releases, .tar builds, RPM builds)
 - windows support
 - tests
-- CI (releases, .tar builds, RPM builds)
 - README
 - logo
 - code comments

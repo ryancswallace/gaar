@@ -3,15 +3,15 @@ package main
 import (
 	"os"
 
-	"github.com/ryancswallace/gaar/cmd"
+	"github.com/ryancswallace/gaar/gaar"
 )
 
 func main() {
-	cmd.SetUsage()
+	gaar.SetUsage()
 
-	dispConf := cmd.ParseCmd()
+	dispConf := gaar.ParseCmd()
 
-	code, err := cmd.Run(dispConf)
+	code, err := gaar.Run(dispConf)
 	if err != nil {
 		os.Exit(code)
 	}

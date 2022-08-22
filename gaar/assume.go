@@ -1,4 +1,4 @@
-package cmd
+package gaar
 
 import (
 	"bufio"
@@ -49,13 +49,13 @@ func readAssumeResponse() (string, error) {
 	return rawAssumeResponse.String(), nil
 }
 
-func parseAssumeResponse(rawAssumeResponse string) (AssumeResponse, error) {
+func makeAssumeResponse(rawAssumeResponse string) (AssumeResponse, error) {
 	var assumeResponse AssumeResponse
 	err := json.Unmarshal([]byte(rawAssumeResponse), &assumeResponse)
 	return assumeResponse, err
 }
 
-func validateAssumeResponse(assumeResponse AssumeResponse) error {
+func (assumeResponse AssumeResponse) validateAssumeResponse() error {
 	if assumeResponse.Credentials.AccessKeyId == "" {
 		return errors.New("found null value for AccessKeyId")
 	}
@@ -69,10 +69,40 @@ func validateAssumeResponse(assumeResponse AssumeResponse) error {
 	return nil
 }
 
-func printEnvVars(assumeResponse AssumeResponse) error {
+func (assumeResponse AssumeResponse) printEnvVars() error {
 	fmt.Println(EnvVarSetKeyword + " AWS_ACCESS_KEY_ID=" + assumeResponse.Credentials.AccessKeyId)
 	fmt.Println(EnvVarSetKeyword + " AWS_SECRET_ACCESS_KEY=" + assumeResponse.Credentials.SecretAccessKey)
 	fmt.Println(EnvVarSetKeyword + " AWS_SESSION_TOKEN=" + assumeResponse.Credentials.SessionToken)
+
+	return nil
+}
+
+func (assumeResponse AssumeResponse) dispResponse(dispConf DispConf) error {
+	if dispConf.DispUser {
+		repr, err := json.MarshalIndent(assumeResponse.AssumedRoleUser, "", "\t")
+		if err != nil {
+			return err
+		}
+		msg := sanitizeMessage(string(repr))
+		fmt.Fprintln(os.Stderr, msg)
+
+	}
+	if dispConf.DispCredentials {
+		repr, err := json.MarshalIndent(assumeResponse.Credentials, "", "\t")
+		if err != nil {
+			return err
+		}
+		msg := sanitizeMessage(string(repr))
+		fmt.Fprintln(os.Stderr, msg)
+	}
+	if dispConf.DispPackedPolicySize {
+		msg := sanitizeMessage("PackedPolicySize: " + assumeResponse.PackedPolicySize)
+		fmt.Fprintln(os.Stderr, msg)
+	}
+	if dispConf.DispSourceIdentity {
+		msg := sanitizeMessage("SourceIdentity: " + assumeResponse.SourceIdentity)
+		fmt.Fprintln(os.Stderr, msg)
+	}
 
 	return nil
 }
@@ -85,28 +115,28 @@ func Run(dispConf DispConf) (int, error) {
 		return ExitRead, err
 	}
 
-	assumeResponse, err := parseAssumeResponse(rawAssumeResponse)
+	assumeResponse, err := makeAssumeResponse(rawAssumeResponse)
 	if err != nil {
 		msg := sanitizeMessage("gaar: Error parsing response: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)
 		return ExitParse, err
 	}
 
-	err = validateAssumeResponse(assumeResponse)
+	err = assumeResponse.validateAssumeResponse()
 	if err != nil {
 		msg := sanitizeMessage("gaar: Error validating response: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)
 		return ExitValidate, err
 	}
 
-	err = printEnvVars(assumeResponse)
+	err = assumeResponse.printEnvVars()
 	if err != nil {
 		msg := sanitizeMessage("gaar: Error printing environment variables: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)
 		return ExitPrint, err
 	}
 
-	err = dispResponse(assumeResponse, dispConf)
+	err = assumeResponse.dispResponse(dispConf)
 	if err != nil {
 		msg := sanitizeMessage("gaar: Error displaying response: " + err.Error())
 		fmt.Fprintln(os.Stderr, msg)

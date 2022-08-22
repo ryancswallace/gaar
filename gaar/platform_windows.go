@@ -1,6 +1,6 @@
 // +build windows
 
-package cmd
+package gaar
 
 const EnvVarSetKeyword = "SET"
 
